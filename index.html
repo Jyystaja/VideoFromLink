@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Iframe Source</title>
+</head>
+<body>
+    <h2>Enter a URL to Extract Iframe Source</h2>
+    <input type="text" id="urlInput" placeholder="Enter URL here">
+    <button onclick="fetchIframeSrc()">Play</button>
+    <br><br>
+    <iframe id="videoFrame" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+
+    <script>
+        async function fetchIframeSrc() {
+            const url = document.getElementById('urlInput').value;
+
+            try {
+                const response = await fetch('/proxy?url=' + encodeURIComponent(url));
+                const text = await response.text();
+                
+                // Parse the HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                
+                // Find the iframe with id="player_iframe"
+                const iframeElement = doc.querySelector('iframe#player_iframe');
+                if (iframeElement) {
+                    const iframeSrc = iframeElement.getAttribute('src');
+                    
+                    if (iframeSrc) {
+                        document.getElementById('videoFrame').src = iframeSrc;
+                    } else {
+                        alert('No iframe src found.');
+                    }
+                } else {
+                    alert('No iframe with id="player_iframe" found on this page.');
+                }
+            } catch (error) {
+                console.error('Error fetching iframe:', error);
+                alert('Failed to fetch iframe. Make sure the URL is correct.');
+            }
+        }
+    </script>
+</body>
+</html>
